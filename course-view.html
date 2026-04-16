@@ -1,0 +1,235 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Player | TechTutor</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Player Page Specific Layout */
+        body { background-color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        .player-container { 
+            display: flex; 
+            flex-direction: row;
+            gap: 20px; 
+            padding: 30px; 
+            max-width: 1300px; 
+            margin: auto; 
+            min-height: 80vh;
+        }
+
+        /* Video Section */
+        .video-section { flex: 3; }
+        
+        video { 
+            width: 100%; 
+            border-radius: 12px; 
+            background: #000; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            outline: none;
+        }
+
+        .video-info { margin-top: 20px; }
+        .video-info h2 { color: #1e293b; margin-bottom: 5px; }
+        .video-info h3 { color: #64748b; font-weight: 400; font-size: 1.1rem; }
+
+        /* Sidebar Section */
+        .sidebar { 
+            flex: 1; 
+            background: #ffffff; 
+            padding: 20px; 
+            border-radius: 12px; 
+            height: 600px; 
+            overflow-y: auto; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .sidebar h3 { 
+            font-size: 1.2rem; 
+            margin-bottom: 15px; 
+            padding-bottom: 10px; 
+            border-bottom: 2px solid #f1f5f9;
+            color: #334155;
+        }
+
+        /* Lecture Items */
+        .lecture-item { 
+            padding: 12px 15px; 
+            margin-bottom: 10px; 
+            background: #f8fafc; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            border: 1px solid transparent;
+        }
+
+        .lecture-item:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        
+        .lecture-item.active { 
+            background: #2563eb; 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .lecture-item strong { margin-right: 10px; opacity: 0.8; }
+
+        /* Navigation */
+        .back-btn { 
+            display: inline-flex; 
+            align-items: center;
+            margin-bottom: 15px; 
+            text-decoration: none; 
+            color: #2563eb; 
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        .back-btn:hover { transform: translateX(-5px); }
+
+        .take-quiz-btn {
+            display: block;
+            margin-top: 20px;
+            padding: 14px 18px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .take-quiz-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .player-container { flex-direction: column; padding: 15px; }
+            .sidebar { height: auto; max-height: 400px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo"><a href="index.html" style="color:inherit;text-decoration:none;">TechTutor</a></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="index.html#technologies">Courses</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="dashboard.html" class="nav-btn">Dashboard</a></li>
+        </ul>
+    </nav>
+    <div class="player-container">
+        <div class="video-section">
+            <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+            
+            <video id="mainVideo" controls controlsList="nodownload" poster="image/video-placeholder.png">
+                Your browser does not support the video tag.
+            </video>
+
+            <div class="video-info">
+                <h2 id="courseTitle">Loading Course...</h2>
+                <h3 id="currentLectureTitle">Select a lecture to start learning</h3>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <h3>Course Content</h3>
+            <div id="lectureList">
+                <p>Checking for lectures...</p>
+            </div>
+            <a id="quizLink" href="#" class="take-quiz-btn">📝 Take Quiz (10 MCQs)</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('courseId');
+            
+            const lectureList = document.getElementById('lectureList');
+            const mainVideo = document.getElementById('mainVideo');
+            const courseTitle = document.getElementById('courseTitle');
+            const currentLectureTitle = document.getElementById('currentLectureTitle');
+
+            document.getElementById('quizLink').href = 'quiz.html?courseId=' + encodeURIComponent(courseId);
+
+            if (!courseId) {
+                alert("No course selected!");
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            try {
+                // 1. Fetch Lectures from Backend
+                const response = await fetch(`${API_BASE}/api/courses/${courseId}/lectures`);
+                
+                if (!response.ok) {
+                    throw new Error("Could not fetch lectures. Server might be down.");
+                }
+
+                const lectures = await response.json();
+
+                if (!Array.isArray(lectures) || lectures.length === 0) {
+                    lectureList.innerHTML = '<p style="padding: 20px; text-align:center;">No lectures uploaded yet.</p>';
+                    courseTitle.textContent = "Empty Course";
+                    return;
+                }
+
+                // 2. Clear loading state
+                lectureList.innerHTML = '';
+                courseTitle.textContent = "Course Content"; 
+
+                // 3. Build the sidebar playlist
+                lectures.forEach((lec, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'lecture-item';
+                    item.innerHTML = `<strong>${index + 1}</strong> <span>${lec.lecture_title}</span>`;
+                    
+                    item.onclick = () => {
+                        playLecture(lec, item);
+                    };
+
+                    lectureList.appendChild(item);
+
+                    if (index === 0) {
+                        playLecture(lec, item);
+                    }
+                });
+
+            } catch (error) {
+                console.error("Player Error:", error);
+                lectureList.innerHTML = `<p style="color:red; padding: 10px;">Error: ${error.message}</p>`;
+            }
+
+            // Helper function to switch videos
+            function playLecture(lec, element) {
+                // Update UI active state
+                document.querySelectorAll('.lecture-item').forEach(el => el.classList.remove('active'));
+                element.classList.add('active');
+
+                // Update Video Source (works whether video_path has leading slash or not)
+                const videoPath = (lec.video_path || '').replace(/^\//, '');
+                mainVideo.src = videoPath ? `${API_BASE}/${videoPath}` : '';
+                currentLectureTitle.textContent = lec.lecture_title || 'Lecture';
+                
+                // Scroll to top of video on mobile
+                if(window.innerWidth < 900) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+
+                mainVideo.play().catch(e => console.log("Auto-play blocked or source invalid."));
+            }
+        });
+    </script>
+</body>
+</html>

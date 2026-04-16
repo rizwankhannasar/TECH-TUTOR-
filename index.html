@@ -1,0 +1,153 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechTutor | Advance Your Skills</title>
+    
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* Styling for the Dynamic Enroll Button */
+        .enroll-btn {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .enroll-btn:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .tech-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .tech-info h3 {
+            margin-bottom: 10px;
+            color: #1e293b;
+        }
+
+        .tech-info span {
+            color: #64748b;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Smart Navbar Styling */
+        .nav-user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-greet {
+            font-weight: 600;
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo"><a href="index.html" style="color:inherit;text-decoration:none;">TechTutor</a></div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="#technologies">Courses</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <div id="authLinks" class="nav-user-info">
+                <li><a href="login.html">Login</a></li>
+                <li><a href="register.html" class="nav-btn">Register</a></li>
+            </div>
+        </ul>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Advance Your Skills with TechTutor</h1>
+            <p>
+                A structured platform for students and teachers to excel in technical education.
+            </p>
+            <a href="#technologies" class="cta-button">Explore Courses</a>
+        </div>
+    </header>
+
+    <section class="about-section" id="about">
+        <div class="container about-container">
+            <div class="about-image">
+                <img 
+                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" 
+                    alt="About TechTutor">
+            </div>
+
+            <div class="about-content">
+                <span class="sub-title">Who We Are</span>
+                <h2>Empowering the Next Generation of Tech Leaders</h2>
+                <p>
+                    TechTutor is a comprehensive educational platform designed at 
+                    <strong>MUST (Mirpur University of Science and Technology)</strong> to bridge the gap between theory and practice.
+                </p>
+                <div class="about-features">
+                    <div class="about-item"><span class="check-icon">✔</span><p>Expert-led curriculum</p></div>
+                    <div class="about-item"><span class="check-icon">✔</span><p>Project-based learning</p></div>
+                    <div class="about-item"><span class="check-icon">✔</span><p>Lifetime access</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="technologies" id="technologies">
+        <div class="container">
+            <h2 class="section-title">Explore Technologies</h2>
+
+            <div class="tech-grid" id="mainCourseGrid">
+                <p style="text-align: center; grid-column: 1/-1;">Loading available courses...</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="about.html">About Us</a>
+            <a href="index.html#technologies">Courses</a>
+            <a href="contact.html">Contact Us</a>
+            <a href="login.html">Login</a>
+        </div>
+        <p>&copy; 2026 TechTutor — MUST Software Engineering Project</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const authLinks = document.getElementById('authLinks');
+            const user = JSON.parse(localStorage.getItem('user'));
+
+            if (user && user.name) {
+                const esc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+                authLinks.innerHTML = `
+                    <li><span class="user-greet">Hi, ${esc(user.name)}</span></li>
+                    <li><a href="dashboard.html" class="nav-btn">My Dashboard</a></li>
+                `;
+            }
+        });
+    </script>
+
+</body>
+</html>
